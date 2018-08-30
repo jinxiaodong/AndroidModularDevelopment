@@ -1,28 +1,86 @@
 apply plugin: 'com.android.application'
 
+apply from: '../config.gradle'
+
 android {
-    compileSdkVersion 26
+    compileSdkVersion app.compileSdkVersion
+    buildToolsVersion app.buildToolsVersion
     defaultConfig {
-        applicationId "com.xiaodong.androidmodulardevelopment"
-        minSdkVersion 19
-        targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+        applicationId app.applicationId
+        minSdkVersion app.minSdkVersion
+        targetSdkVersion app.targetSdkVersion
+        versionCode app.versionCode
+        versionName app.versionName
+        ndk {
+            //如果项目只包含了 armeabi，那么在所有Android设备都可以运行；
+            // 如果项目只包含了 armeabi-v7a，除armeabi架构的设备外都可以运行； 如果项目只包含了 x86，那么armeabi架构和armeabi-v7a的Android设备是无法运行的；
+            // 如果同时包含了 armeabi， armeabi-v7a和x86，所有设备都可以运行，程序在运行的时候去加载不同平台对应的so，这是较为完美的一种解决方案，同时也会导致包变大。
+            //arm64-v8a是可以向下兼容的，其下有armeabi-v7a，armeabi
+            //armeabi-v7a向下兼容armeabi
+            //设置支持的SO库架构（X5内核需求）
+            abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
+        }
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [moduleName: project.getName()]
+            }
+        }
     }
+    compileOptions {
+        sourceCompatibility app.sourceCompatibility
+        targetCompatibility app.targetCompatibility
+    }
+    signingConfigs {
+        release {
+            Properties properties = new Properties()
+            InputStream inputStream = rootProject.file('local.properties').newDataInputStream()
+            properties.load(inputStream)
+            storeFile file(properties.getProperty('RELEASE_STOREFILE'))
+            keyAlias properties.getProperty('RELEASE_KEY_ALIAS')
+            keyPassword properties.getProperty('RELEASE_KEY_PASSWORD')
+            storePassword properties.getProperty('RELEASE_STOREPASSWORD')
+
+        }
+    }
+    //这个是解决lint报错的代码
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
     buildTypes {
         release {
+            resValue "string", "appname", "$getAppName"
+            //服务器环境
+            buildConfigField "String", "SERVER", "release"
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            resValue "string", "appname", "$getAppName"
+            //服务器环境
+            buildConfigField "String", "SERVER", "$server"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+//    splits {
+//        abi {
+//            enable true
+//            reset()
+//            include 'armeabi','x86'
+//            universalApk false
+//        }
+//    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    implementation project(':library')
+
 }

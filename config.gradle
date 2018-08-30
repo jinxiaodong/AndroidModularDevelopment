@@ -1,0 +1,47 @@
+def buildType = getEnvValue("buildType", "uat1")
+
+ext {
+    //编译环境
+    server = getServer(buildType)
+    getAppName = getAppName(buildType)
+
+}
+
+ext.getEnvValue = { key, defValue ->
+    getEnvValue(key, defValue)
+}
+
+
+static String getAppName(type) {
+    switch (type) {
+        case "uat1":
+            return "红美UAT1"
+        case "dev":
+            return "红美开发"
+        case "stg":
+            return "红美仿真"
+    }
+}
+
+static String getServer(type) {
+    switch (type) {
+        case "uat1":
+            return "\"uat1\""
+        case "dev":
+            return "\"dev\""
+        case "stg":
+            return "\"stg\""
+    }
+}
+
+static String getEnvValue(key, defValue) {
+    def val = System.getProperty(key)
+    if (null != val) {
+        return val
+    }
+    val = System.getenv(key)
+    if (null != val) {
+        return val
+    }
+    return defValue
+}

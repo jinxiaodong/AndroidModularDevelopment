@@ -1,0 +1,69 @@
+apply plugin: 'com.android.library'
+
+android {
+
+    compileSdkVersion app.compileSdkVersion
+    buildToolsVersion app.buildToolsVersion
+    defaultConfig {
+        minSdkVersion app.minSdkVersion
+        targetSdkVersion app.targetSdkVersion
+        versionCode app.versionCode
+        versionName app.versionName
+        publishNonDefault true  //在编译时，同时编译其他版本的包，不加的话默认是只打release给其他module使用
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [moduleName: project.getName()]
+            }
+        }
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility app.sourceCompatibility
+        targetCompatibility app.targetCompatibility
+    }
+
+
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile supportDependencies.cardview
+    compile supportDependencies.appCompat
+    compile supportDependencies.recyclerview
+    compile supportDependencies.design
+    compile supportDependencies.constraint
+    compile supportDependencies.annotations
+    compile supportDependencies.multidex
+    compile thirdDependencies.glide
+    compile thirdDependencies.BaseRecyclerViewAdapterHelper
+    compile thirdDependencies.okhttp
+    compile thirdDependencies.gson
+    compile thirdDependencies.rxjava
+    compile thirdDependencies.rxandroid
+    compile thirdDependencies.retrofit
+    compile thirdDependencies.gsonConverter
+    compile thirdDependencies.rxjavaAdapter
+    compile thirdDependencies.arouter
+    compile thirdDependencies.zxing
+    compile thirdDependencies.pickerview
+    compile thirdDependencies.eventbus
+    compile thirdDependencies.snackbar
+    compile thirdDependencies.rxPermissions
+    compile thirdDependencies.photoview
+    compile thirdDependencies.smartrefresh
+    compile thirdDependencies.amap_2dmap
+    compile thirdDependencies.amap_location
+    compile thirdDependencies.amap_search
+    compile thirdDependencies.magicindicator
+    annotationProcessor thirdDependencies.arouter_compiler
+}
